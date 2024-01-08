@@ -62,7 +62,7 @@ if __name__=="__main__":
     output = model(input_data)
     
     loss = criterion(dummy_label, output)
-
+     
     
     print(loss)
 

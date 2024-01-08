@@ -7,9 +7,9 @@ import numpy as np
 
 @dataclass
 class ILoss(ABC):
-    param: Dict[str, np.array] = field(default_factory = dict)
+    param: Dict[str, np.ndarray] = field(default_factory = dict)
     @abstractmethod
-    def __call__(self, y_pred: np.array, y: np.array) -> np.array:
+    def __call__(self, y_pred: np.ndarray, y: np.ndarray) -> np.ndarray:
         pass
 
     @abstractmethod
@@ -18,11 +18,18 @@ class ILoss(ABC):
 
 
 class MSELoss(ILoss):
-    def __call__(self, y: np.array, y_pred: np.array) -> np.array:
-        self.param["y_pred"] = y_pred
-        return np.mean((y - y_pred) ** 2, axis = 0)
-    
+    def __call__(self, y: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+        self.param["loss"]   = np.mean((y - y_pred) ** 2, axis = 1) 
+        self.param["y"]      = y
+        self.param["y_pred"] = y_pred 
+        return self.loss()
 
+    def loss(self):
+        return self.param["loss"] 
+
+    def backward(self):
+        self.grads["L"] = -2/self.param["y"].shape[1]*(self.param["y"] - self.param["y_pred"])
+    
 if __name__=="__main__":
     criterion = MSELoss()
     y, y_pred = np.random.rand(32, 1), np.random(32, 1)
