@@ -7,15 +7,15 @@ import numpy as np
 
 @dataclass
 class ILayer(ABC):
-    params: Dict[str, np.array]= field(default_factory=dict)
-    grads: Dict[str, np.array] = field(default_factory=dict)
+    params: Dict[str, np.ndarray]= field(default_factory=dict)
+    grads: Dict[str, np.ndarray] = field(default_factory=dict)
     
     @abstractmethod
-    def forward(self, input_data: np.array) -> np.array:
+    def forward(self, input_data: np.ndarray) -> np.ndarray:
         pass 
 
     @abstractmethod
-    def backward(self, grad: np.array) -> None:
+    def backward(self, grad: np.ndarray) -> None:
         pass
 
 
@@ -25,15 +25,16 @@ class Linear(ILayer):
         self.params["w"] = np.random.rand(output_dim, input_dim) #W @ X.T 
         self.params["b"] = np.random.rand(output_dim, 1) if bias is True else np.zeros((output_dim,1))
 
-    def forward(self, X: np.array) -> np.array:
-        """
-        Expects a row vector, or matrix with second dimension equals to input_dim.
-        Computes: y = W @ X.T + b
+    def forward(self, X: np.ndarray) -> np.ndarray:
+        """ 
+        X: (input_values, batch_size)
+        Expects each data point to be a column vector.
+        Computes: y = W @ X + b
         """
         self.params["x"] = X
-        return self.params["w"] @ X.T + self.params["b"]
+        return self.params["w"] @ X + self.params["b"]
 
-    def backward(self, grad: np.array) -> None:
+    def backward(self, grad: np.ndarray) -> None:
         """
         y = f(x); x = a * b + c
         dy/da = f'(x) * b
