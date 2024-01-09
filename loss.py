@@ -21,7 +21,7 @@ class ILoss(ABC):
 
 class MSELoss(ILoss):
     def loss(self, y: np.ndarray, y_pred: np.ndarray) -> None:
-        self.param["loss"]   = np.mean((y - y_pred) ** 2, axis = 1) 
+        self.param["loss"]   = np.mean((y - y_pred) ** 2, axis = 0)
         self.param["y"]      = y
         self.param["y_pred"] = y_pred 
 
