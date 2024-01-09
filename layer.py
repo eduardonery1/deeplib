@@ -22,27 +22,27 @@ class ILayer(ABC):
 class Linear(ILayer):
     def __init__(self, input_dim: int, output_dim: int, bias: bool = True):
         super().__init__()
-        self.params["w"] = np.random.rand(output_dim, input_dim) #W @ X 
-        self.params["b"] = np.random.rand(output_dim, 1) if bias is True else np.zeros((output_dim,1))
+        self.params["w"] = np.random.rand(input_dim, output_dim) #W @ X 
+        self.params["b"] = np.random.rand(1, output_dim) if bias is True else np.zeros((1, output_dim))
 
     def forward(self, X: np.ndarray) -> np.ndarray:
         """ 
-        X: (input_values, batch_size)
+        X: (batch_size, input_size)
         Expects each data point to be a column vector.
-        Computes: y = W @ X + b
+        Computes: y = X @ W + b, (output_size, batch_size)
         """
         self.params["x"] = X
-        return self.params["w"] @ X + self.params["b"]
+        return X @ self.params["w"] + self.params["b"]
 
     def backward(self, grad: np.ndarray) -> None:
         """
         y = f(x); x = a * b + c
         dy/da = f'(x) * b
         """
-        print(grad.shape, self.params["x"].T.shape)
-        self.grads["w"] = grad @ self.params["x"].T
-        self.grads["b"] = np.sum(grad, axis = 1, keepdims=True)
-        self.grads["x"] = grad.T @ self.params["w"]
+        self.grads["w"] = self.params["x"].T @ grad
+        self.grads["x"] = grad @ self.params["w"].T
+        self.grads["b"] = np.sum(grad, axis = 0, keepdims=True)
+        
 
 
 class Activation(ILayer):
@@ -50,7 +50,6 @@ class Activation(ILayer):
 
 
 class ReLU(Activation):
-
     def forward(self, X: np.ndarray) -> np.ndarray:
         self.params["x"] = X
         self.zeros = np.zeros(X.shape)
