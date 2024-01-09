@@ -22,7 +22,7 @@ class ILayer(ABC):
 class Linear(ILayer):
     def __init__(self, input_dim: int, output_dim: int, bias: bool = True):
         super().__init__()
-        self.params["w"] = np.random.rand(output_dim, input_dim) #W @ X.T 
+        self.params["w"] = np.random.rand(output_dim, input_dim) #W @ X 
         self.params["b"] = np.random.rand(output_dim, 1) if bias is True else np.zeros((output_dim,1))
 
     def forward(self, X: np.ndarray) -> np.ndarray:
@@ -39,11 +39,25 @@ class Linear(ILayer):
         y = f(x); x = a * b + c
         dy/da = f'(x) * b
         """
-        self.grads["w"] = grad @ self.params["x"]
-        self.grads["b"] = np.sum(grad, axis = 0)
+        print(grad.shape, self.params["x"].T.shape)
+        self.grads["w"] = grad @ self.params["x"].T
+        self.grads["b"] = np.sum(grad, axis = 1, keepdims=True)
         self.grads["x"] = grad.T @ self.params["w"]
 
 
+class Activation(ILayer):
+    pass
+
+
+class ReLU(Activation):
+
+    def forward(self, X: np.ndarray) -> np.ndarray:
+        self.params["x"] = X
+        self.zeros = np.zeros(X.shape)
+        return np.where(X > 0, X, self.zeros)
+    
+    def backward(self, grad: np.ndarray) -> None:
+        self.grads["x"] = np.where(grad > 0, grad, self.zeros) 
 
 if __name__ == "__main__":
     layer = Linear(16, 4)

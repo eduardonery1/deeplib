@@ -46,23 +46,39 @@ class Sequential(INeuralNet):
 if __name__=="__main__":
     from layer import Linear
     from loss import MSELoss
+    from optim import SGD
+
 
     batch_size  = 32
     input_size  = 8
     hidden      = 4
     output_size = 1
+    epochs      = 10000
 
     model = Sequential(Linear(input_size, hidden),
                        Linear(hidden, output_size))
     criterion = MSELoss()
-    
+    optim = SGD(model)
+
     input_data  = np.random.rand(input_size, batch_size)
     dummy_label = np.random.rand(output_size, batch_size) 
-    
-    output = model(input_data)
-    
-    loss = criterion(dummy_label, output)
-     
-    
-    print(loss)
+
+    end = '\r'    
+    max_loss = 0
+    min_loss = 1000
+
+    for e in range(epochs):
+        output = model(input_data)
+        criterion.loss(dummy_label, output)
+        criterion.backward()
+        optim.step(criterion.grads["L"])
+        
+        loss = criterion.param["loss"][0]
+        if loss > max_loss: max_loss = loss
+        if loss < min_loss: min_loss = loss
+
+        if e == epochs-1:
+            end = '\n' 
+        print("LAST:", loss, "MAX:", max_loss, "MIN:", min_loss, end=end)
+
 

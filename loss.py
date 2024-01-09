@@ -8,8 +8,10 @@ import numpy as np
 @dataclass
 class ILoss(ABC):
     param: Dict[str, np.ndarray] = field(default_factory = dict)
+    grads: Dict[str, np.ndarray] = field(default_factory = dict)
+   
     @abstractmethod
-    def __call__(self, y_pred: np.ndarray, y: np.ndarray) -> np.ndarray:
+    def loss(self, y_pred: np.ndarray, y: np.ndarray) -> None:
         pass
 
     @abstractmethod
@@ -18,14 +20,10 @@ class ILoss(ABC):
 
 
 class MSELoss(ILoss):
-    def __call__(self, y: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+    def loss(self, y: np.ndarray, y_pred: np.ndarray) -> None:
         self.param["loss"]   = np.mean((y - y_pred) ** 2, axis = 1) 
         self.param["y"]      = y
         self.param["y_pred"] = y_pred 
-        return self.loss()
-
-    def loss(self):
-        return self.param["loss"] 
 
     def backward(self):
         self.grads["L"] = -2/self.param["y"].shape[1]*(self.param["y"] - self.param["y_pred"])

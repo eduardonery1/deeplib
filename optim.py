@@ -18,8 +18,9 @@ class SGD(IOptimizer):
     def step(self, grad: np.ndarray) -> None:
         for layer in reversed(self.model.layers):
             layer.backward(grad)
-            grad = layer.params["x"]
-            layer.params["w"] -= self.lr*layer.grads["w"]
-            layer.params["b"] -= self.lr*layer.grads["b"]
+            grad = layer.grads["x"]
 
-
+            keys = layer.grads.keys() 
+            for key in keys:
+                if key == "x": continue
+                layer.params[key] -= self.lr*layer.grads[key]
