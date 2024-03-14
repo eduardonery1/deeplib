@@ -9,7 +9,7 @@ pip install -r requirements.txt
 
 ### Try it!
 In this example we create a simple model the learns celsius to fahrenheit conversion.
-```
+```python3
 from layer import Linear
 from nn import Sequential
 from optim import SGD
