@@ -2,7 +2,7 @@
 
 ### Installing
 After cloning the repository, run:
-```
+```bash
 conda create -n deeplib python==3.10 pip
 pip install -r requirements.txt
 ```
